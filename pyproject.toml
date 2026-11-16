@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bricks-toolkit"
+version = "1.0.0"
+description = "bricks 前端的 Windows 原生工具包：构建 dist、静态预览、部署软链与体检（不依赖 bash）"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "hermes" }]
+dependencies = []
+
+[project.scripts]
+bricks = "bricks_toolkit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["bricks_toolkit*"]
