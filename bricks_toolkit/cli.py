@@ -103,7 +103,17 @@ def _which(name: str):
     return shutil.which(name)
 
 
+def _utf8_console() -> None:
+    """Windows 老控制台默认 cp1252，打印中文/箭头会 UnicodeEncodeError；强制 UTF-8。"""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv=None) -> int:
+    _utf8_console()
     ap = argparse.ArgumentParser(prog="bricks", description="bricks 前端 Windows 原生工具包")
     ap.add_argument("--version", action="version", version="bricks-toolkit %s" % __version__)
     sub = ap.add_subparsers(dest="cmd", required=True)
