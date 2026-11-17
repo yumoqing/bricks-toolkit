@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装 bricks-toolkit
+        run: |
+          python -m pip install -U pip
+          pip install -e .
+
+      - name: 版本
+        run: bricks --version
+
+      - name: 克隆 bricks 并按 build.sh 的 SOURCES 构建 dist
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/yumoqing/bricks.git _bricks
+          bricks build --repo _bricks --clean --check
+          python -c "import os,sys; p='_bricks/dist/bricks.js'; s=os.path.getsize(p); print('bricks.js 字节数:', s); sys.exit(0 if s > 500000 else 1)"
+
+      - name: doctor（旧 build.cmd 漂移属已知告警，只打印不失败）
+        shell: bash
+        run: bricks doctor --repo _bricks || true
+
+      - name: 冒烟：serve 能取到 bricks.js
+        run: python tests/ci_serve.py --repo _bricks --port 8123
